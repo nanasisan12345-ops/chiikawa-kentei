@@ -22,7 +22,8 @@ try {
   await page.goto(base);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  assert.equal(await page.locator(".level").count(), 5);
+  await page.locator(".level").first().waitFor();
+  assert.equal(await page.locator(".level").count(), 6);
   await page.screenshot({ path: "artifacts/home-desktop.png", fullPage: true });
   for (const width of [320, 390, 768, 1280, 3840]) {
     await page.setViewportSize({ width, height: 900 });
@@ -158,6 +159,7 @@ try {
     await page.reload();
     await page.getByRole("button", { name: "続きから" }).click();
     assert.equal(await page.locator(".question h1").textContent(), q.text);
+    assert.equal(await page.locator('.question .theory-notice').count(), q.kind === 'theory' ? 1 : 0);
     assert.ok(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
@@ -216,7 +218,7 @@ try {
   assert.ok(await blocked.locator(".certificate").isVisible());
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: consent; full pass/fail; change/back/resume; no-repeat retry; 60 questions at 320px; 5 grade thresholds; 320–3840px; certificate/print/name escaping; share fallback; denied storage.",
+    "PASS: consent; full pass/fail; change/back/resume; no-repeat retry; 240 questions at 320px; 6 grade thresholds; 320–3840px; certificate/print/name escaping; share fallback; denied storage.",
   );
 } finally {
   await context.close();

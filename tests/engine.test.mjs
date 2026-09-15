@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { questions, LEVELS, SOURCES } from "../data.js";
 import {
   makeExam,
+  rememberSeen,
   validRun,
   score,
   load,
@@ -19,12 +20,12 @@ const run = (level = "easy") => ({
   index: 0,
   done: false,
 });
-test("60問・基本3区分各20問・全5級・単一正答と出典", () => {
-  assert.equal(questions.length, 60);
-  assert.equal(new Set(questions.map((q) => q.text)).size, 60);
-  assert.deepEqual(Object.values(LEVELS).map(l => l.name), ['5級','4級','3級','2級','1級']);
-  for (const level of ['easy', 'normal', 'hard'])
-    assert.equal(questions.filter((q) => q.level === level).length, 20);
+test("240問・各級専用40問・全6段階・単一正答と出典", () => {
+  assert.equal(questions.length, 240);
+  assert.equal(new Set(questions.map((q) => q.text)).size, 240);
+  assert.deepEqual(Object.values(LEVELS).map(l => l.name), ['5級','4級','3級','2級','1級','特級']);
+  for (const level of Object.keys(LEVELS))
+    assert.equal(questions.filter((q) => q.level === level).length, 40);
   for (const q of questions) {
     assert.equal(new Set(q.options).size, 4);
     assert.ok(q.options[q.correct]);
@@ -32,11 +33,13 @@ test("60問・基本3区分各20問・全5級・単一正答と出典", () => {
     assert.equal(new URL(SOURCES[q.source].url).protocol, "https:");
   }
 });
-test('4級・2級は中間の難易度を5問ずつ出題し、保存して再開できる', () => {
+test('4級・2級は専用問題を出題し、旧版の途中回答も再開できる', () => {
   for (const level of ['grade4','grade2']) {
     const r = run(level);
-    for (const source of LEVELS[level].pools)
-      assert.equal(r.set.filter(e => questions.find(q => q.id === e.id).level === source).length, 5);
+    assert.ok(r.set.every(e => questions.find(q => q.id === e.id).level === level));
+    const legacy = {...r, set:LEVELS[level].legacyPools.flatMap(source=>makeExam(source).slice(0,5))};
+    assert.ok(validRun(legacy));
+    assert.deepEqual(load({getItem:()=>JSON.stringify({...emptyState(),run:legacy})}).state.run,legacy);
     const state = {...emptyState(), run:r, last:{[level]:r.set.map(e=>e.id)}};
     const restored = load({getItem:()=>JSON.stringify(state)}).state;
     assert.deepEqual(restored.run,r);
@@ -114,4 +117,34 @@ test("保存拒否・破損・再読込、他のキーを触らない", () => {
   };
   assert.ok(load(denied).error);
   assert.equal(save(denied, state), false);
+});
+test('未確認の考察は特級だけで明示し、既存問題IDを維持する', () => {
+  const theories = questions.filter(q => q.kind === 'theory');
+  assert.equal(theories.length, 2);
+  for (const q of theories) {
+    assert.equal(q.level, 'special');
+    assert.ok(q.text.startsWith('【考察】'));
+    assert.match(q.explanation, /公式/);
+    assert.equal(SOURCES[q.source].kind, 'theory');
+  }
+  assert.equal(questions.find(q=>q.id==='q60').level, 'hard');
+  assert.equal(questions.find(q=>q.id==='q61').level, 'special');
+});
+test('各級40問を重複なくひと巡りし、履歴を復元して次の周回も直前10問を避ける', () => {
+  for (const level of Object.keys(LEVELS)) {
+    let state = emptyState();
+    for (let cycle=0; cycle<5; cycle++) {
+      const cycleIds=[];
+      for (let i=0; i<4; i++) {
+        const previous=state.last[level] || [];
+        const set=makeExam(level,previous,Math.random,state.seen[level]);
+        assert.ok(set.every(e=>!previous.includes(e.id)));
+        cycleIds.push(...set.map(e=>e.id));
+        state.seen[level]=rememberSeen(level,state.seen[level],set);
+        state.last[level]=set.map(e=>e.id);
+        state=load({getItem:()=>JSON.stringify(state)}).state;
+      }
+      assert.equal(new Set(cycleIds).size,40);
+    }
+  }
 });

@@ -16,6 +16,7 @@ const assets = [
   "style.css",
   "script.js",
   "data.js",
+  "extra-questions.js",
   "engine.js",
   "favicon.svg",
 ];
@@ -64,5 +65,5 @@ await writeFile(join(output, ".nojekyll"), "");
 if (process.env.GITHUB_OUTPUT)
   await appendFile(process.env.GITHUB_OUTPUT, `site=${output}\n`);
 console.log(
-  `GitHub Pages用ビルド: ${output}\nサイトの7ファイルのみ。配布パッケージは作成しません。\n公開URL: ${siteUrl || "未設定"}`,
+  `GitHub Pages用ビルド: ${output}\nサイトの8ファイルのみ。配布パッケージは作成しません。\n公開URL: ${siteUrl || "未設定"}`,
 );

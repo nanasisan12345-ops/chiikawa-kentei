@@ -13,6 +13,7 @@ const allowed = new Set([
   "style.css",
   "script.js",
   "data.js",
+  "extra-questions.js",
   "engine.js",
   "favicon.svg",
 ]);

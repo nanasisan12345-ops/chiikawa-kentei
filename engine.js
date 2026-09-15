@@ -1,10 +1,10 @@
-import { questions, LEVELS } from "./data.js?v=3";
+import { questions, LEVELS } from "./data.js?v=6";
 export const COUNT = 10;
 export const KEY = "chiikawa-kentei:v1";
 export const byId = new Map(questions.map((q) => [q.id, q]));
 export function acceptsQuestion(level, id) {
   return Object.hasOwn(LEVELS, level) &&
-    (LEVELS[level].pools || [level]).includes(byId.get(id)?.level);
+    [level, ...(LEVELS[level].legacyPools || [])].includes(byId.get(id)?.level);
 }
 export function shuffle(items, random = Math.random) {
   const out = [...items];
@@ -14,19 +14,23 @@ export function shuffle(items, random = Math.random) {
   }
   return out;
 }
-export function makeExam(level, previous = [], random = Math.random) {
+export function makeExam(level, previous = [], random = Math.random, seen = previous) {
   if (!Object.hasOwn(LEVELS, level)) throw new TypeError("級が不正です");
-  const pools = LEVELS[level].pools || [level];
-  const selected = pools.flatMap(source => {
-    const pool = questions.filter(q => q.level === source);
-    const unseen = shuffle(pool.filter(q => !previous.includes(q.id)), random);
-    const seen = shuffle(pool.filter(q => previous.includes(q.id)), random);
-    return [...unseen, ...seen].slice(0, COUNT / pools.length);
-  });
+  const pool = questions.filter(q => q.level === level);
+  const unseen = shuffle(pool.filter(q => !seen.includes(q.id) && !previous.includes(q.id)), random);
+  const other = shuffle(pool.filter(q => seen.includes(q.id) && !previous.includes(q.id)), random);
+  const recent = shuffle(pool.filter(q => previous.includes(q.id)), random);
+  const selected = [...unseen, ...other, ...recent].slice(0, COUNT);
   return shuffle(selected, random).map((q) => ({
     id: q.id,
     order: shuffle([0, 1, 2, 3], random),
   }));
+}
+export function rememberSeen(level, seen = [], selected) {
+  const pool = questions.filter(q => q.level === level).map(q => q.id);
+  const valid = [...new Set(seen.filter(id => pool.includes(id)))];
+  const old = valid.length === pool.length ? [] : valid;
+  return [...new Set([...old, ...selected.map(e => e.id)])].filter(id => pool.includes(id));
 }
 export function validRun(run) {
   if (
@@ -79,7 +83,7 @@ export function score(run) {
   };
 }
 export function emptyState() {
-  return { version: 1, run: null, last: {}, records: [] };
+  return { version: 1, run: null, last: {}, seen: {}, records: [] };
 }
 export function load(storage) {
   const empty = emptyState();
@@ -105,6 +109,11 @@ export function load(storage) {
           ].slice(0, COUNT)
         : [];
     }
+    const seen = {};
+    for (const level of Object.keys(LEVELS)) {
+      const ids = Array.isArray(s.seen?.[level]) ? s.seen[level] : last[level];
+      seen[level] = [...new Set(ids.filter(id => byId.get(id)?.level === level))].slice(0, questions.length);
+    }
     const records = s.records
       .filter(
         (r) =>
@@ -117,7 +126,7 @@ export function load(storage) {
           Number.isFinite(Date.parse(r.date)),
       )
       .slice(-20);
-    return { state: { version: 1, run: s.run, last, records } };
+    return { state: { version: 1, run: s.run, last, seen, records } };
   } catch {
     return {
       state: empty,
