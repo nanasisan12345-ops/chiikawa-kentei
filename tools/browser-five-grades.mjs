@@ -11,9 +11,10 @@ for(const name of ['4級','2級']){
  await p.locator('.certificate').screenshot({path:`artifacts/certificate-${name==='4級'?'4':'2'}.png`});await p.getByRole('button',{name:'ほかの級を選ぶ'}).click();
 }
 for(const [url,destination,label] of [[live?match:'http://127.0.0.1:4173/',exam,'match'],[live?exam:'http://127.0.0.1:4174/',match,'exam']]){
- await p.goto(url);assert.equal(await p.locator('.sister-banner a').getAttribute('href'),destination);
- for(const width of [320,1280]){await p.setViewportSize({width,height:900});assert.ok(await p.locator('.sister-banner').isVisible());assert.ok((await p.locator('.sister-banner').boundingBox()).y<150);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));if(width===1280)await p.screenshot({path:`artifacts/${label}-banner.png`});}
- if(live){await p.locator('.sister-banner a').click();await p.waitForURL(destination);}
+ await p.goto(url);assert.equal(await p.locator(label==='match'?'.sister-banner a':'.link-card').getAttribute('href'),destination);
+ assert.equal(await p.locator('header a').count(),1);
+ for(const width of [320,1280]){await p.setViewportSize({width,height:900});const card=p.locator(label==='match'?'.sister-banner':'.link-card');assert.ok(await card.isVisible());assert.ok(await card.evaluate(e=>e.getBoundingClientRect().top+scrollY>600));assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await card.scrollIntoViewIfNeeded();if(width===1280)await card.screenshot({path:`artifacts/${label}-banner.png`});}
+ if(live){await p.locator(label==='match'?'.sister-banner a':'.link-card').click();await p.waitForURL(destination);}
 }
-console.log('PASS: five ordered grades; 4/2 full exams + resume + large certificate; prominent 320/1280px banners; '+(live?'live bidirectional navigation':'correct reciprocal URLs'));
+console.log('PASS: five ordered grades; 4/2 full exams + resume + large certificate; lower 320/1280px cards; '+(live?'live bidirectional navigation':'correct reciprocal URLs'));
 }finally{await c.close()}

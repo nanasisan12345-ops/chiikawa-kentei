@@ -37,7 +37,7 @@ const esc = (s) =>
 const grass =
   '<svg class="grass" aria-hidden="true" viewBox="0 0 100 70"><path d="M50 63V18M50 49C28 49 19 34 22 19c20 0 30 13 28 30Zm0-10C50 20 62 8 80 10c1 18-10 31-30 33M22 63h58" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const sister =
-  '<a class="link-card" href="https://nanasisan12345-ops.github.io/chiikawa-character-match/"><div><span class="eyebrow">ANOTHER LITTLE DISCOVERY</span><h3>あなたに近いのは、誰？</h3><p>20キャラクターから見つける、ちいかわキャラマッチ。</p></div><span aria-hidden="true">↗</span></a>';
+  '<a class="link-card" href="https://nanasisan12345-ops.github.io/chiikawa-character-match/"><div><span class="eyebrow">ANOTHER LITTLE DISCOVERY</span><h3>ちいかわキャラ診断へ</h3><p>あなたに近いのは誰？ 20キャラクターから見つけよう。</p></div><span aria-hidden="true">診断してみる →</span></a>';
 function tell(text) {
   notice.textContent = text;
 }
