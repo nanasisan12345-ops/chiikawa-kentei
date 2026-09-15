@@ -19,16 +19,30 @@ const run = (level = "easy") => ({
   index: 0,
   done: false,
 });
-test("60問・各級20問・単一正答と出典", () => {
+test("60問・基本3区分各20問・全5級・単一正答と出典", () => {
   assert.equal(questions.length, 60);
   assert.equal(new Set(questions.map((q) => q.text)).size, 60);
-  for (const level of Object.keys(LEVELS))
+  assert.deepEqual(Object.values(LEVELS).map(l => l.name), ['5級','4級','3級','2級','1級']);
+  for (const level of ['easy', 'normal', 'hard'])
     assert.equal(questions.filter((q) => q.level === level).length, 20);
   for (const q of questions) {
     assert.equal(new Set(q.options).size, 4);
     assert.ok(q.options[q.correct]);
     assert.ok(q.explanation);
     assert.equal(new URL(SOURCES[q.source].url).protocol, "https:");
+  }
+});
+test('4級・2級は中間の難易度を5問ずつ出題し、保存して再開できる', () => {
+  for (const level of ['grade4','grade2']) {
+    const r = run(level);
+    for (const source of LEVELS[level].pools)
+      assert.equal(r.set.filter(e => questions.find(q => q.id === e.id).level === source).length, 5);
+    const state = {...emptyState(), run:r, last:{[level]:r.set.map(e=>e.id)}};
+    const restored = load({getItem:()=>JSON.stringify(state)}).state;
+    assert.deepEqual(restored.run,r);
+    assert.deepEqual(restored.last[level], state.last[level]);
+    const wrong = {...r, set:r.set.map((e,i)=> i===0 ? {...e,id:level==='grade4'?'q60':'q01'} : e)};
+    assert.equal(validRun(wrong),false);
   }
 });
 test("100回の再挑戦で直前と重複せず、選択肢と問題の欠落なし", () => {

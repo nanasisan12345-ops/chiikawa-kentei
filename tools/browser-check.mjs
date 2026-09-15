@@ -22,7 +22,7 @@ try {
   await page.goto(base);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  assert.equal(await page.locator(".level").count(), 3);
+  assert.equal(await page.locator(".level").count(), 5);
   await page.screenshot({ path: "artifacts/home-desktop.png", fullPage: true });
   for (const width of [320, 390, 768, 1280, 3840]) {
     await page.setViewportSize({ width, height: 900 });
@@ -216,7 +216,7 @@ try {
   assert.ok(await blocked.locator(".certificate").isVisible());
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: consent; full pass/fail; change/back/resume; no-repeat retry; 60 questions at 320px; 3 grade thresholds; 320–3840px; certificate/print/name escaping; share fallback; denied storage.",
+    "PASS: consent; full pass/fail; change/back/resume; no-repeat retry; 60 questions at 320px; 5 grade thresholds; 320–3840px; certificate/print/name escaping; share fallback; denied storage.",
   );
 } finally {
   await context.close();

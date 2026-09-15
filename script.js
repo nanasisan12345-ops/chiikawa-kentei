@@ -1,4 +1,4 @@
-import { LEVELS, SOURCES } from "./data.js";
+import { LEVELS, SOURCES } from "./data.js?v=3";
 import {
   COUNT,
   byId,
@@ -7,7 +7,7 @@ import {
   load,
   save,
   emptyState,
-} from "./engine.js?v=2";
+} from "./engine.js?v=3";
 const main = document.querySelector("#main"),
   notice = document.querySelector("#notice");
 let storage;
@@ -135,7 +135,7 @@ function result() {
     l = LEVELS[r.level],
     s = score(r);
   mount(
-    `<div class="narrow"><section class="paper result"><p class="eyebrow">YOUR LITTLE ACHIEVEMENT</p>${grass}<h1 tabindex="-1">${s.passed ? "合格、おめでとう。" : "ここから、もう一歩。"}</h1><p>${l.name} · ${l.title}</p><div class="score">${s.points}<small> / 100点</small></div><p class="result-note">${s.correct} / 10問正解 · 合格ライン ${l.pass * 10}点<br>${s.passed ? "好きな世界のこと、またひとつ確かめられました。" : "知らなかったことも、今日からあなたの思い出に。解説を読んで、また挑戦してみよう。"}</p></section>${s.passed ? `<section class="certificate" id="certificate"><span class="eyebrow">CHIIKAWA FAN EXAM</span><h2>合 格 証</h2><p class="name" id="certificate-name">ちいかわ好きのあなた 様</p><p>ちいかわ検定 <b>${l.name}</b><br>${s.points}点で合格したことを、ここに記します。</p><div class="seal">${l.title}<br>合格</div><p>${new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric" }).format(new Date(r.date))}</p><p class="small">非公式ファン検定 · 本サイト独自の記念証です</p></section><label class="name-field">合格証に入れる名前（任意・20文字まで／保存しません）<input id="certificate-input" maxlength="20" placeholder="ちいかわ好きのあなた" autocomplete="off"></label><button class="secondary" data-action="print">合格証を印刷する</button>` : ""}<div class="actions"><button class="primary" data-level="${r.level}">別の10問に挑戦する</button><button class="secondary" data-action="home">ほかの級を選ぶ</button></div><div class="actions"><button class="secondary" data-action="share">結果をシェアする</button></div><div id="share-fallback"></div><h2 class="review-heading">答え合わせの時間</h2><p class="small">問題を開くと、あなたの回答・正解・解説が見られます。</p>${r.set
+    `<div class="narrow"><section class="paper result"><p class="eyebrow">YOUR LITTLE ACHIEVEMENT</p>${grass}<h1 tabindex="-1">${s.passed ? "合格、おめでとう。" : "ここから、もう一歩。"}</h1><p>${l.name} · ${l.title}</p><div class="score">${s.points}<small> / 100点</small></div><p class="result-note">${s.correct} / 10問正解 · 合格ライン ${l.pass * 10}点<br>${s.passed ? "好きな世界のこと、またひとつ確かめられました。" : "知らなかったことも、今日からあなたの思い出に。解説を読んで、また挑戦してみよう。"}</p></section>${s.passed ? `<section class="certificate" id="certificate"><span class="certificate-ribbon">がんばったあなたへ</span><span class="eyebrow">CHIIKAWA FAN EXAM</span><h2>合 格 証</h2><div class="certificate-grade"><span>ちいかわ検定</span><strong>${l.name}</strong><small>${l.title}</small></div><p class="name" id="certificate-name">ちいかわ好きのあなた 様</p><p><b class="certificate-points">${s.points}点で合格！</b><br>好きな世界の思い出を、たくさん集めました。</p><div class="seal">${l.title}<br>合格</div><p>${new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric" }).format(new Date(r.date))}</p><p class="small">非公式ファン検定 · 本サイト独自の記念証です</p></section><label class="name-field">合格証に入れる名前（任意・20文字まで／保存しません）<input id="certificate-input" maxlength="20" placeholder="ちいかわ好きのあなた" autocomplete="off"></label><button class="secondary" data-action="print">合格証を印刷する</button>` : ""}<div class="actions"><button class="primary" data-level="${r.level}">別の10問に挑戦する</button><button class="secondary" data-action="home">ほかの級を選ぶ</button></div><div class="actions"><button class="secondary" data-action="share">結果をシェアする</button></div><div id="share-fallback"></div><h2 class="review-heading">答え合わせの時間</h2><p class="small">問題を開くと、あなたの回答・正解・解説が見られます。</p>${r.set
       .map((e, i) => {
         const q = byId.get(e.id),
           ok = r.answers[i] === q.correct,

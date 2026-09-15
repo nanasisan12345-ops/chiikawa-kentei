@@ -45,12 +45,28 @@ export const LEVELS = {
     pass: 7,
     color: "#668364",
   },
+  grade4: {
+    name: "4級",
+    title: "仲間を知る楽しみ",
+    description: "基本と物語の問題を5問ずつ。次の一歩へ。",
+    pass: 7,
+    color: "#648783",
+    pools: ["easy", "normal"],
+  },
   normal: {
     name: "3級",
     title: "物語の探検家",
     description: "仕事や冒険を、もう少し思い出して。",
     pass: 8,
     color: "#567b91",
+  },
+  grade2: {
+    name: "2級",
+    title: "冒険をたどる達人",
+    description: "物語と細部の問題を5問ずつ。記憶を深めて。",
+    pass: 8,
+    color: "#857291",
+    pools: ["normal", "hard"],
   },
   hard: {
     name: "1級",
