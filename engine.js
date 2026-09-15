@@ -47,7 +47,7 @@ export function validRun(run) {
   if (
     !run.set.every(
       (e) =>
-        byId.get(e.id)?.level === run.level &&
+        byId.get(e?.id)?.level === run.level &&
         Array.isArray(e.order) &&
         e.order.length === 4 &&
         new Set(e.order).size === 4 &&

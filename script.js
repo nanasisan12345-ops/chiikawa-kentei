@@ -7,7 +7,7 @@ import {
   load,
   save,
   emptyState,
-} from "./engine.js";
+} from "./engine.js?v=2";
 const main = document.querySelector("#main"),
   notice = document.querySelector("#notice");
 let storage;
@@ -42,8 +42,10 @@ function tell(text) {
   notice.textContent = text;
 }
 function persist() {
-  if (!save(storage, state))
+  const saved = save(storage, state);
+  if (!saved)
     tell("このブラウザでは保存できません。画面を閉じずに続けてください。");
+  return saved;
 }
 function mount(html, focus = true) {
   main.innerHTML = html;
@@ -234,9 +236,9 @@ main.addEventListener("click", (e) => {
       break;
     case "confirm-clear":
       state = emptyState();
-      persist();
+      const cleared = persist();
       home();
-      tell("この検定の記録を消しました。");
+      tell(cleared ? "この検定の記録を消しました。" : "画面上の記録を消しましたが、ブラウザの保存データを更新できませんでした。");
   }
 });
 home();
